@@ -1,7 +1,11 @@
 package com.tecdes.aluguel;
 
+import javax.swing.SwingUtilities;
+
+import com.tecdes.aluguel.view.AluguelForm;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        SwingUtilities.invokeLater(() -> new AluguelForm().setVisible(true));
     }
 }
