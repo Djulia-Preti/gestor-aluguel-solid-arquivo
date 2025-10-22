@@ -2,13 +2,17 @@ package com.tecdes.aluguel.model;
 
 public class AluguelApartamento implements Aluguel{
 
-    double Valor;
-    int Meses;
+    private double ValorMensal;
+    private int meses;
 
-    double resultado = Valor * Meses;
+    public AluguelApartamento(double valorMensal, int meses) {
+        ValorMensal = valorMensal;
+        this.meses = meses;
+    }
 
     @Override
     public String calcular() {
+        double resultado = ValorMensal * meses;
         return "O Contrato de Aluguel Apartamento ficou no valor final de R$: " + resultado;
     }
 

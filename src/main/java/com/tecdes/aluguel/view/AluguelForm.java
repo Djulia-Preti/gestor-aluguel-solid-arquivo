@@ -1,5 +1,7 @@
 package com.tecdes.aluguel.view;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
@@ -27,10 +29,8 @@ public class AluguelForm extends JFrame {
     private JTextArea txtResultado; // Correto
     private AluguelController controller; // Correto
 
-    
-
-    public AluguelForm(){
-        setSize(420,520);
+    public AluguelForm() {
+        setSize(420, 520);
         setTitle("Gestor de Pagamentos - v1.0");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null);
@@ -41,8 +41,8 @@ public class AluguelForm extends JFrame {
         initComponents();
     }
 
-    private void initComponents(){
-        //----------------------ENTRADA DE DADOS--------------------------------
+    private void initComponents() {
+        // ----------------------ENTRADA DE DADOS--------------------------------
         JLabel lblValor = new JLabel("Valor (R$):");
         lblValor.setBounds(40, 30, 100, 25);
         add(lblValor);
@@ -63,13 +63,11 @@ public class AluguelForm extends JFrame {
         lblTipoAluguel.setBounds(40, 120, 150, 25);
         add(lblTipoAluguel);
 
-        cmbTipoAluguel = new JComboBox<>(new String[]{"Casa", "Apartamento", "Comercial"});
+        cmbTipoAluguel = new JComboBox<>(new String[] { "Casa", "Apartamento", "Comercial" });
         cmbTipoAluguel.setBounds(190, 120, 160, 25);
         add(cmbTipoAluguel);
 
-
-
-        //----------------------BOTÕES--------------------------------
+        // ----------------------BOTÕES--------------------------------
         JButton btnProcessar = new JButton("Processar Aluguel");
         btnProcessar.setBounds(120, 200, 180, 35);
         add(btnProcessar);
@@ -82,7 +80,7 @@ public class AluguelForm extends JFrame {
         btnRecarregarHistorico.setBounds(120, 280, 180, 35);
         add(btnRecarregarHistorico);
 
-        //----------------------SAÍDA DE DADOS--------------------------------
+        // ----------------------SAÍDA DE DADOS--------------------------------
         txtResultado = new JTextArea();
         txtResultado.setEditable(false);
         txtResultado.setLineWrap(true);
@@ -92,58 +90,66 @@ public class AluguelForm extends JFrame {
         scroll.setBounds(40, 350, 320, 100);
         add(scroll);
 
-        //----------------------EVENTO (Listener)--------------------------------
+        // ----------------------EVENTO (Listener)--------------------------------
         btnProcessar.addActionListener(e -> processar());
-        // cmbTipoAluguel.addActionListener(e -> atualizarCampos());
-        // btnSalvarHistorico.addActionListener(e -> btnSalvarHistorico());
-        // btnRecarregarHistorico.addActionListener(e -> btnRecarregarHistorico());
-        
+        btnSalvarHistorico.addActionListener(e -> btnSalvarHistorico());
+        btnRecarregarHistorico.addActionListener(e -> btnRecarregarHistorico());
+
     }
 
-    private Aluguel obterMetodo(String metodo){
-        if(metodo.equals("Casa")){
-            return new AluguelCasa();
-        }
-        if(metodo.equals("Apartamento")){
-            return new AluguelApartamento();
-        }
-        return new AluguelComercial();
+    private void btnRecarregarHistorico() {
+       
     }
 
-    private void processar(){
+    private void processar() {
         try {
-            double ValorMensal = Double.parseDouble(txtValor.getText());
-            String metodo = cmbTipoAluguel.getSelectedItem().toString();
+            double valorMensal = Double.parseDouble(txtValor.getText());
+            int meses = Integer.parseInt(txtMeses.getText());
+            String tipo = (String) cmbTipoAluguel.getSelectedItem();
 
-            System.out.println(metodo);
-            System.out.println(cmbTipoAluguel.getSelectedItem());
-
-            Aluguel aluguel = obterMetodo(metodo);
+            Aluguel aluguel;
+            switch (tipo) {
+                case "Casa":
+                    aluguel = new AluguelCasa(valorMensal, meses);
+                    break;
+                case "Apartamento":
+                    aluguel = new AluguelApartamento(valorMensal, meses);
+                    break;
+                case "Comercial":
+                    aluguel = new AluguelComercial(valorMensal, meses);
+                    break;
+                default:
+                    txtResultado.setText("Erro: Tipo de imóvel inválido.");
+                    return;
+            }
 
             String resultado = controller.processarAluguel(aluguel);
             txtResultado.append(resultado + "\n");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Valor iválido...");
+
+        } catch (NumberFormatException e) {
+            txtResultado.setText("Erro: Valores inválidos.");
         }
     }
 
-    // private void btnSalvarHistorico(){
-    //     List<String> alugueis = controller.listarAlugueis();
+    private void btnSalvarHistorico() {
+        List<String> alugueis = controller.listarAlugueis();
 
-    //     if(alugueis.isEmpty()){
-    //         JOptionPane.showMessageDialog(null, "Não há alugueis no histórico. ");
-    //         return;
-    //     }
+        if (alugueis.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Não há alugueis no histórico. ");
+            return;
+        }
 
-    //     try(FileWriter writer = new FileWriter("alugueis.txt")){
-    //         for(String registro : alugueis){
-    //             writer.write(registro);
-    //         }
-    //         JOptionPane.showMessageDialog(null, "Gravação do Arquivo com Sucessso!! ");
-            
-    //     } catch (IOException e) {
-    //         JOptionPane.showMessageDialog(null, "Erro na tentativa de salvar o arquivo: " + e.getMessage());
-    //     }
-    // }
+        try (FileWriter writer = new FileWriter("data/alugueis.txt")) {
+            for (String registro : alugueis) {
+                writer.write(registro);
+            }
+            JOptionPane.showMessageDialog(null, "Gravação do Arquivo com Sucessso!! ");
+            txtResultado.setVisible(false);
+            txtResultado.setText("");
+
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Erro na tentativa de salvar o arquivo: " + e.getMessage());
+        }
+    }
 
 }

@@ -20,8 +20,13 @@ public class AluguelController {
         return resultado;
     }
 
-    // public List<String> listarAlugueis(){
-      
-    // }
+    public List<String> listarAlugueis(){
+        List<String> lista = repository.listar();
+        System.out.println("Lista de Alugueis: " + lista);
+        return lista;
+    }
+
+   
+    
 
 }

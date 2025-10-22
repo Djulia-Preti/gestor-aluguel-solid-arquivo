@@ -15,4 +15,6 @@ public class AluguelRepository {
     public List<String> listar(){
         return new ArrayList<>(registros);
     }
+
+
 }
